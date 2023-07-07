@@ -1,4 +1,4 @@
-![Auth0Kit](Assets/Banner.png)
+![Auth0Kit](Docs/Assets/Banner.png)
 
 Auth0Kit is a Swift library for communicating with the [Auth0](https://auth0.com) API. It provides tools to help you validate Auth0 tokens, and authorize requests sent from your website or apps.
 
