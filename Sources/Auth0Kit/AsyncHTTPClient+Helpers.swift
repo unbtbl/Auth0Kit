@@ -4,12 +4,15 @@ import Foundation
 
 struct HTTPError: Error {
     let code: HTTPResponseStatus
+    let reason: String
 }
 
 extension HTTPClientResponse {
     func assertSuccessful() async throws {
         guard status.code >= 200 && status.code < 300 else {
-            throw HTTPError(code: status)
+            var body = try await body.collect(upTo: 1024)
+            let reason = body.readString(length: body.readableBytes) ?? ""
+            throw HTTPError(code: status, reason: reason)
         }
     }
 
