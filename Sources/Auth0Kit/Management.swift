@@ -5,6 +5,7 @@ import Vapor
 extension Auth0 {
     public struct Management {
         let auth0: Auth0
+        let managementApi: String
         let clientId: String
         let clientSecret: String
 
@@ -18,7 +19,7 @@ extension Auth0 {
                         "grant_type": "client_credentials",
                         "client_id": clientId,
                         "client_secret": clientSecret,
-                        "audience": auth0.issuer + "api/v2/",
+                        "audience": managementApi
                     ],
                     allocator: auth0.allocator
                 )
@@ -33,7 +34,7 @@ extension Auth0 {
             let token = try await getToken()
             var request = HTTPClientRequest(
                 url:
-                    "\(auth0.issuer)api/v2/users/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)"
+                    "\(managementApi)users/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)"
             )
             request.method = .DELETE
             request.headers.bearerAuthorization = .init(token: token)
@@ -100,7 +101,7 @@ extension Auth0 {
             body: E
         ) async throws -> HTTPClientResponse {
             let token = try await getToken()
-            var request = HTTPClientRequest(url: "\(auth0.issuer)api/v2/\(path)")
+            var request = HTTPClientRequest(url: "\(managementApi)\(path)")
             request.method = method
             request.headers.bearerAuthorization = .init(token: token)
             request.headers.contentType = .json
@@ -117,8 +118,32 @@ extension Auth0 {
         }
     }
 
+    /// Creates a new `Management` instance, allowing you to manage users, roles, and permissions.
+    /// - Parameters:
+    /// - clientId: The client ID of the application you want to manage.
+    /// - clientSecret: The client secret of the application you want to manage.
+    /// - managementApi: The management API's url, including `/api/v2/` at the end, as found in Auth0
+    public func management(clientId: String, clientSecret: String, managementApi: String) -> Management {
+        return Management(
+            auth0: self,
+            managementApi: managementApi.last == "/" ? managementApi : managementApi.appending("/"),
+            clientId: clientId,
+            clientSecret: clientSecret
+        )
+    }
+
+    /// Creates a new `Management` instance, allowing you to manage users, roles, and permissions.
+    /// - Parameters:
+    /// - clientId: The client ID of the application you want to manage.
+    /// - clientSecret: The client secret of the application you want to manage.
     public func management(clientId: String, clientSecret: String) -> Management {
-        return Management(auth0: self, clientId: clientId, clientSecret: clientSecret)
+        let host = issuer.last == "/" ? issuer : issuer.appending("/")
+        return Management(
+            auth0: self,
+            managementApi: host + "api/v2/",
+            clientId: clientId,
+            clientSecret: clientSecret
+        )
     }
 }
 
