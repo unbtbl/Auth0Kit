@@ -34,7 +34,7 @@ extension Auth0 {
             let token = try await getToken()
             var request = HTTPClientRequest(
                 url:
-                    "\(managementApi)users/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)"
+                    "\(auth0.issuer)api/v2/users/\(id.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? id)"
             )
             request.method = .DELETE
             request.headers.bearerAuthorization = .init(token: token)
