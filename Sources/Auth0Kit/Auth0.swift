@@ -20,14 +20,6 @@ public struct Auth0 {
     public func verifyToken(_ token: String) throws -> Auth0Token {
         let token: Auth0Token = try signer.verify(token)
         try token.aud.verifyIntendedAudience(includes: audience)
-
-        guard token.iss.value == issuer else {
-            throw JWTError.claimVerificationFailure(
-                name: "aud",
-                reason: "not signed by \(issuer)"
-            )
-        }
-
         return token
     }
 }
