@@ -22,7 +22,7 @@ Add this dependency to your target(s):
 )
 ```
 
-## Setting up Auth0 with Vapor
+## Example Auth0 setup with Vapor
 
 To use Auth0Kit, first, import the library and create an `Auth0` instance:
 
@@ -31,8 +31,19 @@ import Vapor
 import Auth0Kit
 ```
 
-Make sure you have the Auth0 issuer, audience and signer. You can read this using Vapor's Environment. The following snippet gets you started with Vapor quickly:
+Next, ensure you have the required environment variables for your Auth0 issuer, audience, and signer.
+* If your Auth0 application uses HS256, set AUTH0_SECRET to your shared secret.
+* If it uses RS256, set AUTH0_CERT (inline certificate) or AUTH0_CERT_PATH (certificate file).
 
+| Variable             | Purpose                                                   | Required if                                                                                                   | Example Value                                     |
+|----------------------|-----------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|---------------------------------------------------|
+| **AUTH0_AUDIENCE**   | Specifies the audience of the Auth0 application           | **Always** needed (both HS256 and RS256)                                                                      | `my-api-identifier`                               |
+| **AUTH0_ISSUER**     | The issuer (tenant domain)                                | **Always** needed (both HS256 and RS256)                                                                      | `https://my-tenant.auth0.com/`                    |
+| **AUTH0_SECRET**     | Shared secret                                             | If using **HS256**                                                                                            | `my-auth0-hs256-secret`                           |
+| **AUTH0_CERT**       | Public certificate string for RS256 (PEM format)          | If using **RS256**, you can supply an **inline** PEM string here (instead of a file path)                     | `-----BEGIN PUBLIC KEY-----\n...`                 |
+| **AUTH0_CERT_PATH**  | Public certificate file path for RS256 (PEM file path)    | If using **RS256**, you can supply a **file path** to your PEM certificate (instead of providing inline text) | `/path/to/my/public.cert`                         |
+
+You can load these variables using Vapor's Environment. Here's a quick example to get started:
 ```swift
 guard let auth0Audience = Environment.get("AUTH0_AUDIENCE") else {
     app.logger.critical("Missing `AUTH0_AUDIENCE` environment variable")
